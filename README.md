@@ -1,1 +1,3 @@
 # PokemonGOstore
+
+ここから 
