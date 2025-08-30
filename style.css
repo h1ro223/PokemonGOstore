@@ -1,4 +1,4 @@
-:root {
+:root { 
   --primary: #43a1ff;
   --bg: #f5f7fa;
   --bg-dark: #222;
@@ -203,3 +203,4 @@ footer small a {
 footer small {
   font-size: 1.08em;
 }
+
