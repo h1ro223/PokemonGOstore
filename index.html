@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>Pokémon GO ボックス記録ツール</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Pokémon GO ボックス記録</h1>
+      <div class="header-actions">
+        <button id="help-btn" title="使い方">❓ヘルプ</button>
+        <button id="show-itemlist-btn" title="アイテム一覧">
+          📦アイテム一覧
+        </button>
+        <a
+          href="https://store.pokemongo.com/ja"
+          target="_blank"
+          id="webstore-btn"
+          >Pokémon GO Web Storeに移動</a
+        >
+      </div>
+    </header>
+    <main>
+      <div class="add-btn-row">
+        <button id="open-add-btn" class="add-btn">＋ボックス追加</button>
+      </div>
+      <section id="list-section">
+        <h2>記録ボックス一覧</h2>
+        <div id="box-list"></div>
+      </section>
+      <section id="json-section">
+        <button id="export-btn">JSON出力</button>
+        <label class="import-label">
+          JSON読込<input type="file" id="import-file" accept=".json" />
+        </label>
+      </section>
+    </main>
+    <!-- ボックス追加フォームモーダル -->
+    <div id="form-modal" class="modal">
+      <div class="modal-content form-modal-content">
+        <span id="form-modal-close" class="modal-close">&times;</span>
+        <form id="box-form" autocomplete="off">
+          <h2>ボックス追加</h2>
+          <div class="form-row">
+            <label
+              >★ボックス名<input
+                type="text"
+                name="name"
+                required
+                maxlength="30"
+            /></label>
+            <label
+              >★値段
+              <input
+                type="number"
+                name="poke_coins"
+                placeholder="ポケコイン"
+                min="0"
+                style="width: 90px"
+              />
+              <span>or</span>
+              <input
+                type="number"
+                name="yen"
+                placeholder="円"
+                min="0"
+                style="width: 90px"
+              />
+            </label>
+          </div>
+          <div class="form-row item-list-row">
+            <label
+              >★内容
+              <button type="button" id="add-item-btn">＋アイテム追加</button>
+            </label>
+            <div id="item-list"></div>
+          </div>
+          <div class="form-row">
+            <label
+              >★記録日
+              <input type="date" name="record_date" required />
+              <button type="button" id="today-btn">今日</button>
+            </label>
+            <label
+              >イベント名
+              <input type="text" name="event" maxlength="30" />
+            </label>
+          </div>
+          <div class="form-row">
+            <label
+              >★セール
+              <select name="is_sale" required>
+                <option value="no">いいえ</option>
+                <option value="yes">はい</option>
+              </select>
+            </label>
+            <label id="sale-detail" style="display: none">
+              割引率(%)<input
+                type="number"
+                name="percent_off"
+                min="1"
+                max="99"
+                style="width: 60px"
+              />
+              <span>元値</span
+              ><input
+                type="number"
+                name="original_price"
+                min="1"
+                style="width: 80px"
+              />
+            </label>
+          </div>
+          <div class="form-row">
+            <label
+              >★購入回数制限
+              <select name="limit" required>
+                <option value="制限なし">制限なし</option>
+                <option value="1回限定">1回限定</option>
+                <option value="2回限定">2回限定</option>
+                <option value="3回限定">3回限定</option>
+                <option value="4回限定">4回限定</option>
+                <option value="5回限定">5回限定</option>
+                <option value="6回限定">6回限定</option>
+                <option value="7回限定">7回限定</option>
+                <option value="8回限定">8回限定</option>
+                <option value="9回限定">9回限定</option>
+                <option value="10回限定">10回限定</option>
+              </select>
+            </label>
+            <label
+              >★販売場所
+              <select name="place" required>
+                <option value="ゲーム内">ゲーム内</option>
+                <option value="Webストア">Webストア</option>
+                <option value="その他">その他</option>
+              </select>
+            </label>
+          </div>
+          <div class="form-row">
+            <label
+              >★自由メモ
+              <input
+                type="text"
+                name="note"
+                maxlength="100"
+                placeholder="自由メモ"
+              />
+            </label>
+          </div>
+          <div class="form-row">
+            <button type="submit" id="save-btn">登録</button>
+            <button type="button" id="reset-btn">リセット</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <!-- 詳細モーダル -->
+    <div id="modal" class="modal">
+      <div class="modal-content detail-modal-content">
+        <span id="modal-close" class="modal-close">&times;</span>
+        <div id="modal-body"></div>
+      </div>
+    </div>
+    <!-- ヘルプモーダル -->
+    <div id="help-modal" class="modal">
+      <div class="modal-content help-modal-content">
+        <span id="help-modal-close" class="modal-close">&times;</span>
+        <div id="help-body">
+          <h2>使い方</h2>
+          <ul>
+            <li>「＋ボックス追加」で新しいボックスを記録できます</li>
+            <li>
+              「アイテム一覧」ボタンで今まで登録したアイテム名の一覧が見れます
+            </li>
+            <li>一覧のボックス名を押すと詳細が見れます</li>
+            <li>編集・削除・JSON保存/読込も可能です</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- アイテムリストモーダル -->
+    <div id="itemlist-modal" class="modal">
+      <div class="modal-content itemlist-modal-content">
+        <span id="itemlist-modal-close" class="modal-close">&times;</span>
+        <div id="itemlist-body"></div>
+      </div>
+    </div>
+    <footer>
+      <small>
+        made by hiro/ヒロ &nbsp;|&nbsp;
+        <a href="https://github.com/h1ro223" target="_blank" rel="noopener"
+          >GitHub</a
+        >
+      </small>
+    </footer>
+    <script src="./script.js"></script>
+  </body>
+</html>
